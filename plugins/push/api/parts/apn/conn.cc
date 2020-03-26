@@ -325,7 +325,11 @@ namespace apns {
 
 		int val = 1;
 
+#if defined(__GNUC__) && ( defined(__APPLE_CPP__) || defined(__APPLE_CC__) || defined(__MACOS_CLASSIC__) )
+		obj->fd = socket(AF_INET, SOCK_STREAM, 0);
+#else
 		obj->fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
+#endif
 		LOG_DEBUG("CONN " << uv_thread_self() << ": socket " << obj->fd);
 		if (obj->fd == -1) {
 			std::ostringstream out;
