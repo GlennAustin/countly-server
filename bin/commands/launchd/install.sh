@@ -1,11 +1,24 @@
 #!/bin/bash
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
+if [ $EUID != 0 ];
+then
+	sudo "$0" "$@"
+	exit
+fi
 
-sudo cp /usr/local/Cellar/mongodb/2.2.0-x86_64/homebrew.mxcl.mongodb.plist /Library/LaunchDaemons/
-sudo cp com.countly.dashboard.plist /Library/LaunchDaemons/
-sudo cp com.countly.api.plist /Library/LaunchDaemons/
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-sudo launchctl load homebrew.mxcl.mongodb.plist
-sudo launchctl load com.countly.dashboard.plist
-sudo launchctl load com.countly.api.plist
+if [ -f /Library/LaunchDaemons/com.countly.dashboard.plist ];
+then
+    launchctl unload /Library/LaunchDaemons/com.countly.dashboard.plist
+fi
+if [ -f /Library/LaunchDaemons/com.countly.api.plist ];
+then
+    launchctl unload /Library/LaunchDaemons/com.countly.api.plist
+fi
+
+cp $DIR/com.countly.dashboard.plist /Library/LaunchDaemons/
+cp $DIR/com.countly.api.plist /Library/LaunchDaemons/
+
+launchctl load /Library/LaunchDaemons/com.countly.dashboard.plist
+launchctl load /Library/LaunchDaemons/com.countly.api.plist
